@@ -6,7 +6,6 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float speed;
     [SerializeField] private float brickHeight;
-    [SerializeField] private float baseY = -7f;
 
     [SerializeField] LayerMask wallLayer;
     [SerializeField] LayerMask brickLayer;
@@ -16,6 +15,8 @@ public class Player : MonoBehaviour
     private bool isMoving = false;
     private Vector3 currentPos;
     private Vector3 targetPos;
+
+    private int point = 0;
 
     private void Start()
     {
@@ -96,7 +97,7 @@ public class Player : MonoBehaviour
         {
             RaycastHit hit;
             Vector3 raycastPos = transform.position;
-            raycastPos.y = baseY;
+            raycastPos.y = 0f;
             if (Physics.Raycast(raycastPos, direction, out hit, 0.5f, wallLayer))
             {
                 StopAllCoroutines();
@@ -110,9 +111,14 @@ public class Player : MonoBehaviour
     {
         while (true)
         {
+            Vector3 raycastPos = transform.position;
+            raycastPos.y += 0.5f;
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, 50f, brickLayer))
+            if (Physics.Raycast(raycastPos, Vector3.down, out hit, 50f, brickLayer))
             {
+                point += 10;
+                UIManager.Instance.SetPoint(point);
+
                 //Debug.Log("+1");
                 Destroy(hit.collider.gameObject);
 
@@ -120,7 +126,7 @@ public class Player : MonoBehaviour
                 playerPos.y += brickHeight;
                 transform.position = playerPos;
 
-                Vector3 spawnPos = new Vector3(transform.position.x, baseY - 2 * brickHeight, transform.position.z);
+                Vector3 spawnPos = new Vector3(transform.position.x, 0f, transform.position.z);
                 GameObject newBrick = Instantiate(brickPrefab, spawnPos, Quaternion.identity);
                 newBrick.transform.SetParent(transform);
             }
