@@ -1146,7 +1146,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 701827445}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 963194230}
+        m_TargetAssemblyTypeName: LevelManager, Assembly-CSharp
+        m_MethodName: NextLevel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &701827445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1708,6 +1720,7 @@ MonoBehaviour:
   endPosPrefab: {fileID: 8079806856085197348, guid: b0d6b924243f809459363f83f83c1c93, type: 3}
   isCompleted: 0
   player: {fileID: 1317351144}
+  map: {fileID: 0}
 --- !u!114 &963194231
 MonoBehaviour:
   m_ObjectHideFlags: 0

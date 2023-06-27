@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        OnInit();
+    
     }
 
     private void Update()
@@ -32,7 +32,18 @@ public class Player : MonoBehaviour
 
     public void OnInit()
     {
+        isMoving = false;
+        ClearBottomBrick();
+    }
 
+    private void ClearBottomBrick()
+    {
+        int childCount = gameObject.transform.childCount;
+        for (int i = childCount - 1; i >= 0; i--)
+        {
+            Transform child = gameObject.transform.GetChild(i);
+            Destroy(child.gameObject);
+        }
     }
 
     private void OnDrag()
@@ -219,7 +230,7 @@ public class Player : MonoBehaviour
                 Destroy(bottomBrick.gameObject);
 
                 //Debug.Log("-1");
-                Instantiate(brickPrefab, unbrickObj.transform.position, Quaternion.identity).transform.Rotate(Vector3.up, 180f);
+                Instantiate(brickPrefab, unbrickObj.transform.position, Quaternion.identity, LevelManager.Instance.map.transform).transform.Rotate(Vector3.up, 180f);
 
                 Vector3 playerPos = transform.position;
                 playerPos.y -= brickHeight;
