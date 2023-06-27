@@ -5,6 +5,8 @@ using UnityEngine;
 public class Unbrick : MonoBehaviour
 {
     public bool active;
+    public Vector3 position;
+    public float rotateAngle;
 
     private void Start()
     {

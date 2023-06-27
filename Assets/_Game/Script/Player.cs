@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject brickPrefab;
 
     private bool isMoving = false;
+    private bool isDragging = false;
+    private bool haveWall = false;
     private Vector3 currentPos;
     private Vector3 targetPos;
     private Vector3 moveDir;
@@ -33,6 +35,7 @@ public class Player : MonoBehaviour
     public void OnInit()
     {
         isMoving = false;
+        point = 0;
         ClearBottomBrick();
     }
 
@@ -52,19 +55,22 @@ public class Player : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
+                haveWall = false;
+                isDragging = true;
                 currentPos = Input.mousePosition;
                 //Debug.Log("Current: " + currentPos.x + ":" + currentPos.y + ":" + currentPos.z);
             }
-            else if (Input.GetMouseButtonUp(0))
+            else if (Input.GetMouseButtonUp(0) && isDragging)
             {
                 targetPos = Input.mousePosition;
                 //Debug.Log("Target: " + targetPos.x + ":" + targetPos.y + ":" + targetPos.z);
                 moveDir = targetPos - currentPos;
                 moveDir = GetDirection(moveDir);
-                Debug.Log("Direction: " + moveDir.x + ":" + moveDir.y + ":" + moveDir.z);
+                //Debug.Log("Direction: " + moveDir.x + ":" + moveDir.y + ":" + moveDir.z);
                 if (moveDir != Vector3.zero)
                 {
                     Move(moveDir);
+                    isDragging = false;
                 }
             }
         }
@@ -104,8 +110,12 @@ public class Player : MonoBehaviour
         while (true)
         {
             isMoving = true;
-            Vector3 movement = new Vector3(direction.x, 0f, direction.z);
-            transform.position += movement * speed * Time.deltaTime;
+            StartCoroutine(CheckWall(direction));
+            if (!haveWall)
+            {
+                Vector3 movement = new Vector3(direction.x, 0f, direction.z);
+                transform.position += movement * speed * Time.deltaTime;
+            }
             yield return null;
         }
     }
@@ -121,6 +131,7 @@ public class Player : MonoBehaviour
             {
                 StopAllCoroutines();
                 isMoving = false;
+                haveWall = true;
             }
             yield return null;
         }
@@ -238,7 +249,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                Debug.Log("Game over");
+                LevelManager.Instance.isGameOver = true;
                 StopAllCoroutines();
             }
         }

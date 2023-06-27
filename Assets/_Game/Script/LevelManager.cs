@@ -20,11 +20,11 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] TextAsset mapData;
 
-    [SerializeField] GameObject wallPrefab;
-    [SerializeField] GameObject brickPrefab;
-    [SerializeField] GameObject unbrickPrefab;
-    [SerializeField] GameObject unbrickCrossPrefab;
-    [SerializeField] GameObject unbrickTurnPrefab;
+    [SerializeField] Wall wallPrefab;
+    [SerializeField] Brick brickPrefab;
+    [SerializeField] Unbrick unbrickPrefab;
+    [SerializeField] Unbrick unbrickCrossPrefab;
+    [SerializeField] Unbrick unbrickTurnPrefab;
     [SerializeField] GameObject startPosPrefab;
     [SerializeField] GameObject endPosPrefab;
 
@@ -33,14 +33,21 @@ public class LevelManager : MonoBehaviour
 
     private string[,] mapType;
     private int currentLevel;
+    private List<Brick> listBrick;
+    private List<Wall> listWall;
+    private List<Unbrick> listUnbrick; 
 
     public bool isCompleted = false;
+    public bool isGameOver = false;
 
     public GameObject player;
     public GameObject map;
 
     private void Start()
     {
+        listWall = new List<Wall>();
+        listBrick = new List<Brick>();
+        listUnbrick = new List<Unbrick>();
         currentLevel = 1;
         OnInit(currentLevel);
     }
@@ -51,14 +58,20 @@ public class LevelManager : MonoBehaviour
         {
             UIManager.Instance.SetCompletePanel(true);
             UIManager.Instance.SetCompleteText(currentLevel);
-        }   
+        }
+        if (isGameOver)
+        {
+            UIManager.Instance.SetRetryPanel(true);
+        }
     }
 
     private void OnInit(int mapNumber)
     {
         isCompleted = false;
+        isGameOver = false;
         UIManager.Instance.SetPoint(0);
         UIManager.Instance.SetCompletePanel(false);
+        UIManager.Instance.SetRetryPanel(false);
 
         string mapName = "Map_" + mapNumber.ToString();
         mapType = MapData.Instance.ReadMapData(mapName);
@@ -84,35 +97,57 @@ public class LevelManager : MonoBehaviour
             case "-1":
                 return;
             case "0":
-                Instantiate(wallPrefab, pos, Quaternion.identity, map.transform);
+                Wall wall = Instantiate(wallPrefab, pos, Quaternion.identity, map.transform);
+                wall.position = pos;
+                listWall.Add(wall);
                 return;
             case "1":
-                Instantiate(brickPrefab, pos, Quaternion.identity, map.transform);
+                Brick brick = Instantiate(brickPrefab, pos, Quaternion.identity, map.transform);
+                brick.position = pos;
+                listBrick.Add(brick);
                 return;
             case "2":
-                Instantiate(unbrickPrefab, pos, Quaternion.identity, map.transform).transform.Rotate(Vector3.up, 90f);
+                Unbrick unbrick = Instantiate(unbrickPrefab, pos, Quaternion.identity, map.transform);
+                unbrick.transform.Rotate(Vector3.up, 90f);
+                unbrick.rotateAngle = -1f;
+                listUnbrick.Add(unbrick);
                 return;
             case "2.0":
-                Instantiate(unbrickPrefab, pos, Quaternion.identity, map.transform);
+                Unbrick unbrick1 = Instantiate(unbrickPrefab, pos, Quaternion.identity, map.transform);
+                unbrick1.rotateAngle = -1f;
+                listUnbrick.Add(unbrick1);
                 return;
             case "2.1":
-                Instantiate(unbrickCrossPrefab, pos, Quaternion.identity, map.transform);
+                Unbrick unbrick2 = Instantiate(unbrickCrossPrefab, pos, Quaternion.identity, map.transform);
+                unbrick2.rotateAngle = -1f;
+                listUnbrick.Add(unbrick2);
                 return;
             case "2.2":
                 //Turn left and move horizontal
-                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform).transform.Rotate(Vector3.up, 180f);
+                Unbrick unbrick3 = Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform);
+                unbrick3.transform.Rotate(Vector3.up, 180f);
+                unbrick3.rotateAngle = 180f;
+                listUnbrick.Add(unbrick3);
                 return;
             case "2.3":
                 //Turn right and move vertical
-                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform);
+                Unbrick unbrick4 = Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform);
+                unbrick4.rotateAngle = 0f;
+                listUnbrick.Add(unbrick4);
                 return;
             case "2.4":
                 //Turn left and move vertical
-                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform).transform.Rotate(Vector3.up, 90f);
+                Unbrick unbrick5 = Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform);
+                unbrick5.transform.Rotate(Vector3.up, 90f);
+                unbrick5.rotateAngle = 90f;
+                listUnbrick.Add(unbrick5);
                 return;
             case "2.5":
                 //Turn right and move horizontal
-                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform).transform.Rotate(Vector3.up, 270f);
+                Unbrick unbrick6 = Instantiate(unbrickTurnPrefab, pos, Quaternion.identity, map.transform);
+                unbrick6.transform.Rotate(Vector3.up, 270f);
+                unbrick6.rotateAngle = 270f;
+                listUnbrick.Add(unbrick6);
                 return;
             case "3":
                 startPos = Instantiate(startPosPrefab, pos, Quaternion.identity, map.transform);
@@ -129,6 +164,12 @@ public class LevelManager : MonoBehaviour
         ClearMap();
         OnInit(currentLevel);
     }
+
+    public void ResetLevel()
+    {
+        ClearMap();
+        OnInit(currentLevel);
+    } 
 
     private void ClearMap()
     {

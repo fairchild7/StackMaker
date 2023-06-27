@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Text pointText;
     [SerializeField] Text completeText;
     [SerializeField] GameObject completePanel;
+    [SerializeField] GameObject retryPanel;
 
     public void SetPoint(int point)
     {
@@ -36,5 +37,10 @@ public class UIManager : MonoBehaviour
     public void SetCompletePanel(bool status)
     {
         completePanel.SetActive(status);
+    }
+
+    public void SetRetryPanel(bool status)
+    {
+        retryPanel.SetActive(status);
     }
 }
