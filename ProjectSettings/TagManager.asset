@@ -7,6 +7,8 @@ TagManager:
   - Brick
   - Unbrick
   - LoadBrick
+  - TurnPoint
+  - EndPoint
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - Brick
   - Unbrick
   - Wall
-  - 
+  - EndPoint
   - 
   - 
   - 

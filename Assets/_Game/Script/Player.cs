@@ -10,11 +10,13 @@ public class Player : MonoBehaviour
     [SerializeField] LayerMask wallLayer;
     [SerializeField] LayerMask brickLayer;
     [SerializeField] LayerMask unbrickLayer;
+    [SerializeField] LayerMask endPoint;
     [SerializeField] GameObject brickPrefab;
 
     private bool isMoving = false;
     private Vector3 currentPos;
     private Vector3 targetPos;
+    private Vector3 moveDir;
 
     private int point = 0;
 
@@ -46,16 +48,12 @@ public class Player : MonoBehaviour
             {
                 targetPos = Input.mousePosition;
                 //Debug.Log("Target: " + targetPos.x + ":" + targetPos.y + ":" + targetPos.z);
-                Vector3 moveDir = targetPos - currentPos;
+                moveDir = targetPos - currentPos;
                 moveDir = GetDirection(moveDir);
-                //Debug.Log("Direction: " + moveDir.x + ":" + moveDir.y + ":" + moveDir.z);
+                Debug.Log("Direction: " + moveDir.x + ":" + moveDir.y + ":" + moveDir.z);
                 if (moveDir != Vector3.zero)
                 {
-                    StopAllCoroutines();
-                    StartCoroutine(Move(moveDir));
-                    StartCoroutine(CheckWall(moveDir));
-                    StartCoroutine(CheckBrick());
-                    StartCoroutine(CheckUnbrick());
+                    Move(moveDir);
                 }
             }
         }
@@ -80,7 +78,17 @@ public class Player : MonoBehaviour
         }
     }
 
-    private IEnumerator Move(Vector3 direction)
+    private void Move(Vector3 moveDir)
+    {
+        StopAllCoroutines();
+        StartCoroutine(MoveWithDirection(moveDir));
+        StartCoroutine(CheckWall(moveDir));
+        StartCoroutine(CheckBrick());
+        StartCoroutine(CheckUnbrick());
+        StartCoroutine(CheckEndPoint());
+    }
+
+    private IEnumerator MoveWithDirection(Vector3 direction)
     {
         while (true)
         {
@@ -139,26 +147,11 @@ public class Player : MonoBehaviour
         while (true)
         {
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, 50f, unbrickLayer))
+            Vector3 raycastPos = transform.position;
+            raycastPos.y += 0.5f;
+            if (Physics.Raycast(raycastPos, Vector3.down, out hit, 50f, unbrickLayer))
             {
-                Transform bottomBrick = GetBottomBrick();
-                if (bottomBrick != null)
-                {
-                    Destroy(bottomBrick.gameObject);
-
-                    //Debug.Log("-1");
-                    Instantiate(brickPrefab, hit.collider.gameObject.transform.position, Quaternion.identity);
-                    Destroy(hit.collider.gameObject);
-
-                    Vector3 playerPos = transform.position;
-                    playerPos.y -= brickHeight;
-                    transform.position = playerPos;
-                }
-                else
-                {
-                    Debug.Log("Game over");
-                    StopAllCoroutines();
-                }
+                StepOnUnbrick(hit.collider.gameObject);
             }
             yield return null;
         }
@@ -180,5 +173,80 @@ public class Player : MonoBehaviour
             }
         }
         return bottomBrick;
+    }
+
+    private void SwitchTurn(GameObject obj)
+    {
+        switch (obj.transform.localEulerAngles.y)
+        {
+            case 0:
+                moveDir = new Vector3(moveDir.z, moveDir.y, moveDir.x);
+                return;
+            case 90:
+                moveDir = new Vector3(-moveDir.z, moveDir.y, -moveDir.x);
+                return;
+            case 180:
+                moveDir = new Vector3(moveDir.z, moveDir.y, moveDir.x); 
+                return;
+            case 270:
+                moveDir = new Vector3(-moveDir.z, moveDir.y, -moveDir.x);
+                return;
+            default:
+                return;
+        }
+    }
+
+    private void StepOnUnbrick(GameObject unbrickObj)
+    {
+        Transform bottomBrick = GetBottomBrick();
+
+        if (unbrickObj.CompareTag("TurnPoint"))
+        {
+            SwitchTurn(unbrickObj);
+            Move(moveDir);
+        }
+
+        if (unbrickObj.GetComponent<Unbrick>().active == true)
+        {
+            if (bottomBrick != null)
+            {
+                unbrickObj.GetComponent<Unbrick>().active = false;
+                Transform[] unbricks = unbrickObj.GetComponentsInChildren<Transform>();
+                foreach (Transform unbrick in unbricks)
+                {
+                    unbrick.gameObject.GetComponent<MeshRenderer>().enabled = false;
+                }
+                Destroy(bottomBrick.gameObject);
+
+                //Debug.Log("-1");
+                Instantiate(brickPrefab, unbrickObj.transform.position, Quaternion.identity).transform.Rotate(Vector3.up, 180f);
+
+                Vector3 playerPos = transform.position;
+                playerPos.y -= brickHeight;
+                transform.position = playerPos;
+            }
+            else
+            {
+                Debug.Log("Game over");
+                StopAllCoroutines();
+            }
+        }
+    }
+
+    private IEnumerator CheckEndPoint()
+    {
+        while (true)
+        {
+            RaycastHit hit;
+            Vector3 raycastPos = transform.position;
+            raycastPos.y += 0.5f;
+            if (Physics.Raycast(raycastPos, Vector3.down, out hit, 50f, endPoint))
+            {
+                StopAllCoroutines();
+                LevelManager.Instance.isCompleted = true;
+                Debug.Log("Congrats!");
+            }
+            yield return null;
+        }
     }
 }

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8970543021210276956}
   - component: {fileID: 5368128311262427496}
   - component: {fileID: 9207326368587067100}
+  - component: {fileID: -7356495209740034523}
   m_Layer: 7
   m_Name: Unbrick
   m_TagString: Untagged
@@ -97,3 +98,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-7356495209740034523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7260784051677287377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edfe5b8f13ae7064c9ae6790fa6f8b29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -4,30 +4,63 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    private static LevelManager instance;
+    public static LevelManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<LevelManager>();
+            }
+
+            return instance;
+        }
+    }
+
     [SerializeField] TextAsset mapData;
 
     [SerializeField] GameObject wallPrefab;
     [SerializeField] GameObject brickPrefab;
     [SerializeField] GameObject unbrickPrefab;
+    [SerializeField] GameObject unbrickCrossPrefab;
+    [SerializeField] GameObject unbrickTurnPrefab;
     [SerializeField] GameObject startPosPrefab;
     [SerializeField] GameObject endPosPrefab;
 
     private GameObject startPos;
-    public Transform endPos;
+    private GameObject endPos;
+
+    private string[,] mapType;
+    private int currentLevel;
+
+    public bool isCompleted = false;
 
     public GameObject player;
 
-    private string[,] mapType;
-
     private void Start()
     {
-        OnInit();
+        currentLevel = 1;
+        OnInit(currentLevel);
     }
 
-    private void OnInit()
+    private void Update()
     {
+        if (isCompleted)
+        {
+            UIManager.Instance.SetCompletePanel(true);
+            UIManager.Instance.SetCompleteText(currentLevel);
+        }   
+    }
+
+    private void OnInit(int mapNumber)
+    {
+        isCompleted = false;
         UIManager.Instance.SetPoint(0);
-        mapType = MapData.Instance.ReadMapData(mapData.name);
+        UIManager.Instance.SetCompletePanel(false);
+
+        string mapName = "Map_" + mapNumber.ToString();
+        mapType = MapData.Instance.ReadMapData(mapName);
         //Debug.Log("i: " + mapType.GetLength(0) + ". j: " + mapType.GetLength(1));
         for (int i = mapType.GetLength(0) - 1; i >= 0; i--)
         {
@@ -56,12 +89,40 @@ public class LevelManager : MonoBehaviour
             case "2":
                 Instantiate(unbrickPrefab, pos, Quaternion.identity).transform.Rotate(Vector3.up, 90f);
                 return;
+            case "2.0":
+                Instantiate(unbrickPrefab, pos, Quaternion.identity);
+                return;
+            case "2.1":
+                Instantiate(unbrickCrossPrefab, pos, Quaternion.identity);
+                return;
+            case "2.2":
+                //Turn left and move horizontal
+                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity).transform.Rotate(Vector3.up, 180f);
+                return;
+            case "2.3":
+                //Turn right and move vertical
+                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity);
+                return;
+            case "2.4":
+                //Turn left and move vertical
+                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity).transform.Rotate(Vector3.up, 90f);
+                return;
+            case "2.5":
+                //Turn right and move horizontal
+                Instantiate(unbrickTurnPrefab, pos, Quaternion.identity).transform.Rotate(Vector3.up, 270f);
+                return;
             case "3":
                 startPos = Instantiate(startPosPrefab, pos, Quaternion.identity);
                 return;
             case "4":
-                //end
+                endPos = Instantiate(endPosPrefab, pos, Quaternion.identity);
                 return;
         }
+    }
+
+    public void NextLevel()
+    {
+        currentLevel++;
+        OnInit(currentLevel);
     }
 }

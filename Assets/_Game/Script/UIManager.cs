@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     private static UIManager instance;
-
     public static UIManager Instance
     {
         get
@@ -21,9 +20,21 @@ public class UIManager : MonoBehaviour
     }
 
     [SerializeField] Text pointText;
+    [SerializeField] Text completeText;
+    [SerializeField] GameObject completePanel;
 
     public void SetPoint(int point)
     {
         pointText.text = point.ToString();
+    }
+
+    public void SetCompleteText(int level)
+    {
+        completeText.text = "LEVEL " + level.ToString() + "\n COMPLETED";
+    }
+
+    public void SetCompletePanel(bool status)
+    {
+        completePanel.SetActive(status);
     }
 }
